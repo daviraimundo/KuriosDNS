@@ -1,0 +1,45 @@
+version: "3"
+
+services:
+  stubby:
+    container_name: stubby
+    image: kurios/stubby
+    expose:
+      - 53/udp
+    ports:
+      - 8053:53/udp
+    restart: unless-stopped
+    networks:
+      dnsnet:
+        ipv4_address: 10.1.10.5
+  pihole:
+    container_name: pihole
+    image: pihole/pihole:latest
+    ports:
+      - 53:53/udp
+      - 80:80/tcp
+      - 443:443/tcp
+    environment:
+      TZ: 'America/New_York'
+      WEBPASSWORD: '${PIHOLE_WEBPASS}'
+      ServerIP: '${SERVERIP}'
+      IPv6: "False"
+      VIRTUAL_HOST: '${PIHOLE_VHOST}'
+      DNS1: 10.1.10.5
+      DNS2: 'no'
+    volumes:
+       - './etc-pihole/:/etc/pihole/'
+       - './etc-dnsmasq.d/:/etc/dnsmasq.d/'
+    dns:
+      - 127.0.0.1
+      - 10.1.10.5
+    networks:
+      dnsnet:
+    restart: unless-stopped
+
+networks:
+  dnsnet:
+    driver: bridge
+    ipam:
+      config:
+        - subnet: 10.1.10.0/24
