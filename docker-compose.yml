@@ -3,7 +3,7 @@ version: "3"
 services:
   stubby:
     container_name: stubby
-    image: kurios/stubby
+    image: kurioscurious/docker-stubby
     expose:
       - 53/udp
     ports:
