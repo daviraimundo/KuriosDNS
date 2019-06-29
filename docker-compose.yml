@@ -1,45 +1,46 @@
-version: "3"
+version: 3.7
 
 services:
   stubby:
     container_name: stubby
     image: kurioscurious/docker-stubby
-    expose:
-      - 53/udp
     ports:
-      - 8053:53/udp
+      - 53/udp
     restart: unless-stopped
     networks:
       dnsnet:
-        ipv4_address: 10.1.10.5
+        ipv4_address: ${STUBBY_IP}
   pihole:
     container_name: pihole
     image: pihole/pihole:latest
     ports:
-      - 53:53/udp
-      - 80:80/tcp
-      - 443:443/tcp
+      - 53/udp
+      - 80/tcp
+      - 443/tcp
     environment:
       TZ: 'America/New_York'
       WEBPASSWORD: '${PIHOLE_WEBPASS}'
-      ServerIP: '${SERVERIP}'
-      IPv6: "False"
+      ServerIP: ${PIHOLE_IP}
       VIRTUAL_HOST: '${PIHOLE_VHOST}'
-      DNS1: 10.1.10.5
+      IPv6: 'False'
+      DNS1: ${STUBBY_IP}
       DNS2: 'no'
     volumes:
        - './etc-pihole/:/etc/pihole/'
        - './etc-dnsmasq.d/:/etc/dnsmasq.d/'
     dns:
       - 127.0.0.1
-      - 10.1.10.5
+      - ${STUBBY_IP}
     networks:
       dnsnet:
+        ipv4_address: ${PIHOLE_IP}
     restart: unless-stopped
 
 networks:
   dnsnet:
-    driver: bridge
+    driver: macvlan
+    driver_opts:
+      parent: eth0
     ipam:
       config:
-        - subnet: 10.1.10.0/24
+        - subnet: '${SUBNET}'
