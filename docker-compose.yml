@@ -18,7 +18,7 @@ services:
       - 80/tcp
       - 443/tcp
     environment:
-      TZ: 'America/New_York'
+      TZ: '${TZ}'
       WEBPASSWORD: '${PIHOLE_WEBPASS}'
       ServerIP: ${PIHOLE_IP}
       VIRTUAL_HOST: '${PIHOLE_VHOST}'
